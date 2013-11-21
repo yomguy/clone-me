@@ -16,6 +16,11 @@ VAR_PART="sda2"
 SWAP_PART="sda3"
 HOME_PART="sda4"
 
+mkfs.$FS_TYPE /dev/$ROOT_PART
+mkfs.$FS_TYPE /dev/$VAR_PART
+mkfs.$FS_TYPE /dev/$HOME_PART
+mkswap /dev/$SWAP_PART
+
 CLONE=/mnt/$NAME
 if [ ! -d $CLONE ]; then
  mkdir $CLONE
@@ -42,8 +47,7 @@ if [ ! -d $DEST ]; then
  mkdir $DEST
 fi
 mount /dev/$HOME_PART $DEST
-rsync -a --one-file-system --exclude=$MASTER:/home/telecaster/archives/ --exclude=$MASTER:/home/telecaster/trash/ \
-     --exclude=$MASTER:/home/telecaster/test/ $MASTER:$MASTERPATH/home/ $CLONE/home/
+rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "test/*" $MASTER:$MASTERPATH/home/ $CLONE/home/
 umount $CLONE/home
 
 # FSTAB
