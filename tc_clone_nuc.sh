@@ -2,13 +2,15 @@
 
 set -e
 
-echo "Please enter the IP address of the master:"
-read MASTER
+echo "Please enter the MASTER_HOST address:"
+read MASTER_HOST
 
-echo "Please enter the target system name:"
-read NAME
+echo "Please enter the MASTER_HOST path:"
+read MASTER_PATH
 
-MASTERPATH=/mnt/custom
+echo "Please enter the target system ID:"
+read ID
+
 FS_TYPE="ext4"
 
 ROOT_PART="sda1"
@@ -21,7 +23,7 @@ mkfs.$FS_TYPE /dev/$VAR_PART
 mkfs.$FS_TYPE /dev/$HOME_PART
 mkswap /dev/$SWAP_PART
 
-CLONE=/mnt/$NAME
+CLONE=/mnt/$ID
 if [ ! -d $CLONE ]; then
  mkdir $CLONE
 fi
@@ -29,7 +31,7 @@ fi
 # CLONING
 mount /dev/$ROOT_PART $CLONE
 echo "rsyncing root..."
-rsync -a --delete --one-file-system $MASTER:$MASTERPATH/ $CLONE/
+rsync -a --delete --one-file-system $MASTER_HOST:$MASTER_PATH/ $CLONE/
 
 echo "rsyncing var..."
 DEST=$CLONE/var
@@ -39,7 +41,7 @@ fi
 if [ ! $VAR_PART == $ROOT_PART ]; then
  mount /dev/$VAR_PART $CLONE/var
 fi
-rsync -a --one-file-system --delete $MASTER:$MASTERPATH/var/ $CLONE/var/
+rsync -a --one-file-system --delete $MASTER_HOST:$MASTER_PATH/var/ $CLONE/var/
 
 echo "rsyncing home..."
 DEST=$CLONE/home
@@ -47,7 +49,7 @@ if [ ! -d $DEST ]; then
  mkdir $DEST
 fi
 mount /dev/$HOME_PART $DEST
-rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "test/*" $MASTER:$MASTERPATH/home/ $CLONE/home/
+rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "test/*" $MASTER_HOST:$MASTER_PATH/home/ $CLONE/home/
 umount $CLONE/home
 
 # FSTAB
@@ -72,7 +74,7 @@ echo "UUID=$uuid    /home    $FS_TYPE    defaults,errors=remount-ro    0       2
 uuid=`get_uuid $SWAP_PART`
 echo "UUID=$uuid    none    swap    sw    0       0" >> $CLONE/etc/fstab
 
-echo $NAME > $CLONE/etc/hostname
+echo $ID > $CLONE/etc/hostname
 
 # CHROOT
 mount -t proc none $CLONE/proc
@@ -91,4 +93,4 @@ umount $CLONE/proc
 umount $CLONE/var
 umount $CLONE
 
-echo "Hello world, I'm an NEW TC clone ! :)"
+echo "Hello world, I'm $ID cloned from $MASTER_HOST ! :)"
