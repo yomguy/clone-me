@@ -13,10 +13,10 @@ read ID
 
 FS_TYPE="ext4"
 
-ROOT_PART="sda1"
-VAR_PART="sda2"
-SWAP_PART="sda3"
-HOME_PART="sda4"
+ROOT_PART="sda2"
+VAR_PART="sda3"
+SWAP_PART="sda5"
+HOME_PART="sda6"
 
 mkfs.$FS_TYPE /dev/$ROOT_PART
 mkfs.$FS_TYPE /dev/$VAR_PART
