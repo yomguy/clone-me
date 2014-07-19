@@ -31,7 +31,7 @@ fi
 # CLONING
 mount /dev/$ROOT_PART $CLONE
 echo "rsyncing root..."
-rsync -a --delete --one-file-system $MASTER_HOST:$MASTER_PATH/ $CLONE/
+rsync -a --delete --exclude "/var/*" --exclude "/home/*" --one-file-system $MASTER_HOST:$MASTER_PATH/ $CLONE/
 
 echo "rsyncing var..."
 DEST=$CLONE/var
