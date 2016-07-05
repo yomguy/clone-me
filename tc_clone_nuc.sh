@@ -51,7 +51,7 @@ if [ ! -d $DEST ]; then
  mkdir $DEST
 fi
 mount /dev/$HOME_PART $DEST
-rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "test/*" $MASTER_HOST:$MASTER_PATH/home/ $CLONE/home/
+rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "test/*" --exclude "edit/*" $MASTER_HOST:$MASTER_PATH/home/ $CLONE/home/
 umount $CLONE/home
 
 # FSTAB
