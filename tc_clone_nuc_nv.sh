@@ -7,19 +7,21 @@ OPTIND=1         # Reset in case getopts has been used previously in the shell.
 ROOT="/"
 FS_TYPE="ext4"
 
+DISK=nvme0n1
 ROOT_PART="nvme0n1p1"
 VAR_PART="nvme0n1p2"
 SWAP_PART="nvme0n1p3"
 HOME_PART="nvme0n1p4"
 
-while getopts m:i:p:r:s flag
+while getopts m:i:p:r:s:d flag
 do
     case "${flag}" in
         m) MASTER_HOST=${OPTARG};;
         i) ID=${OPTARG};;
-        p) PARTITION=true;;
+        f) FORMAT=true;;
         r) ROOT=${OPTARG};;
         s) SYNC=true;;
+        p) PARTITIONS=${OPTARG};;
     esac
 done
 
@@ -29,6 +31,10 @@ if [ ! -d $CLONE ]; then
 fi
 
 if [ $PARTITION ]; then
+    sfdisk /dev/DISK < $PARTITIONS
+fi
+
+if [ $FORMAT ]; then
     mkfs.$FS_TYPE /dev/$ROOT_PART
     mkfs.$FS_TYPE /dev/$VAR_PART
     mkfs.$FS_TYPE /dev/$HOME_PART
