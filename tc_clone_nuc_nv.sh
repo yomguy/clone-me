@@ -16,7 +16,7 @@ HOME_PART="nvme0n1p4"
 while getopts m:i:p:r:s:d:f flag
 do
     case "${flag}" in
-        m) MASTER_HOST=${OPTARG};;
+        m) MASTER=${OPTARG};;
         i) ID=${OPTARG};;
         f) FORMAT=tdrue;;
         r) ROOT=${OPTARG};;
@@ -45,27 +45,31 @@ if [ $FORMAT ]; then
     mkswap /dev/$SWAP_PART
 fi
 
+
+mount /dev/$ROOT_PART $CLONE
+
+DEST=$CLONE/var
+if [ ! -d $DEST ]; then
+  mkdir $DEST
+fi
+mount /dev/$VAR_PART $CLONE/var
+
+DEST=$CLONE/home
+if [ ! -d $DEST ]; then
+   mkdir $DEST
+fi
+mount /dev/$HOME_PART $CLONE/home
+
 if [ $SYNC ]; then
     # CLONING
-    mount /dev/$ROOT_PART $CLONE
     echo "rsyncing root..."
-    rsync -a --delete --exclude "/var/*" --exclude "/home/*" --one-file-system $MASTER_HOST:$ROOT/ $CLONE/
+    rsync -a --delete --exclude "/var/*" --exclude "/home/*" --one-file-system $MASTER:$ROOT/ $CLONE/
 
-    DEST=$CLONE/var
-    if [ ! -d $DEST ]; then
-      mkdir $DEST
-    fi
-    mount /dev/$VAR_PART $CLONE/var
     echo "rsyncing var..."
-    rsync -a --one-file-system --delete $MASTER_HOST:$ROOT/var/ $CLONE/var/
+    rsync -a --one-file-system --delete $MASTER:$ROOT/var/ $CLONE/var/
 
-    DEST=$CLONE/home
-    if [ ! -d $DEST ]; then
-       mkdir $DEST
-    fi
-    mount /dev/$HOME_PART $CLONE/home
     echo "rsyncing home..."
-    rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "test/*" --exclude "edit/*" $MASTER_HOST:$ROOT/home/ $CLONE/home/
+    rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "test/*" --exclude "edit/*" $MASTER:$ROOT/home/ $CLONE/home/
 fi
 
 # FSTAB
@@ -114,4 +118,4 @@ umount $CLONE/var
 umount $CLONE/home
 umount $CLONE
 
-echo "Hello world, I'm $ID cloned from $MASTER_HOST ! :)"
+echo "Hello world, I'm $ID cloned from $MASTER ! :)"
