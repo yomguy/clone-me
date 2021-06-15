@@ -2,57 +2,54 @@
 
 set -e
 
-echo "Please enter the MASTER_HOST address:"
-read MASTER_HOST
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
 
-echo "Please enter the MASTER_HOST path:"
-read MASTER_PATH
-
-echo "Please enter the target system ID:"
-read ID
-
+ROOT="/"
 FS_TYPE="ext4"
 
-#UEFI_PART="sda1"
 ROOT_PART="nvme0n1p1"
 VAR_PART="nvme0n1p2"
 SWAP_PART="nvme0n1p3"
 HOME_PART="nvme0n1p4"
 
-#mkfs.vfat /dev/$UEFI_PART
-mkfs.$FS_TYPE /dev/$ROOT_PART
-mkfs.$FS_TYPE /dev/$VAR_PART
-mkfs.$FS_TYPE /dev/$HOME_PART
-mkswap /dev/$SWAP_PART
+while getopts m:i:p:r:s flag
+do
+    case "${flag}" in
+        m) MASTER_HOST=${OPTARG};;
+        i) ID=${OPTARG};;
+        p) PARTITION=true;;
+        r) ROOT=${OPTARG};;
+        s) SYNC=true;;
+    esac
+done
 
 CLONE=/mnt/$ID
 if [ ! -d $CLONE ]; then
  mkdir $CLONE
 fi
 
-# CLONING
+if [ $PARTITION ]; then
+    mkfs.$FS_TYPE /dev/$ROOT_PART
+    mkfs.$FS_TYPE /dev/$VAR_PART
+    mkfs.$FS_TYPE /dev/$HOME_PART
+    mkswap /dev/$SWAP_PART
+fi
+
 mount /dev/$ROOT_PART $CLONE
-echo "rsyncing root..."
-rsync -a --delete --exclude "/var/*" --exclude "/home/*" --one-file-system $MASTER_HOST:$MASTER_PATH/ $CLONE/
+mount /dev/$VAR_PART $CLONE/var
+mount /dev/$HOME_PART $$CLONE/home
 
-echo "rsyncing var..."
-DEST=$CLONE/var
-if [ ! -d $DEST ]; then
- mkdir $DEST
-fi
-if [ ! $VAR_PART == $ROOT_PART ]; then
- mount /dev/$VAR_PART $CLONE/var
-fi
-rsync -a --one-file-system --delete $MASTER_HOST:$MASTER_PATH/var/ $CLONE/var/
+if [ $SYNC ]; then
+    # CLONING
+    echo "rsyncing root..."
+    rsync -a --delete --exclude "/var/*" --exclude "/home/*" --one-file-system $MASTER_HOST:$MASTER_PATH/ $CLONE/
 
-echo "rsyncing home..."
-DEST=$CLONE/home
-if [ ! -d $DEST ]; then
- mkdir $DEST
+    echo "rsyncing var..."
+    rsync -a --one-file-system --delete $MASTER_HOST:$MASTER_PATH/var/ $CLONE/var/
+
+    echo "rsyncing home..."
+    rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "test/*" --exclude "edit/*" $MASTER_HOST:$MASTER_PATH/home/ $CLONE/home/
 fi
-mount /dev/$HOME_PART $DEST
-rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "test/*" --exclude "edit/*" $MASTER_HOST:$MASTER_PATH/home/ $CLONE/home/
-umount $CLONE/home
 
 # FSTAB
 get_uuid () {
@@ -76,23 +73,28 @@ echo "UUID=$uuid    /home    $FS_TYPE    defaults,errors=remount-ro    0       2
 uuid=`get_uuid $SWAP_PART`
 echo "UUID=$uuid    none    swap    sw    0       0" >> $CLONE/etc/fstab
 
+echo "RESUME=UUID=$uuid" >> $CLONE/etc/initramfs-tools/conf.d/resume
+
 echo $ID > $CLONE/etc/hostname
 
 # CHROOT
-mount --bind $CLONE/proc
-mount --bind /dev $CLONE/dev
 mount --bind /sys $CLONE/sys
+mount --bind /prc $CLONE/proc
+mount --bind /dev $CLONE/dev
+mount --bind /dev/pts $CLONE/dev/pts
 
 # GRUB
 chroot $CLONE grub-install /dev/nvme0n1
+chroot $CLONE update-initramfs -u
 chroot $CLONE update-grub
 
 # UMOUNT
 umount $CLONE/sys
-umount $CLONE/dev
 umount $CLONE/proc
-
+umount $CLONE/dev/pts
+umount $CLONE/dev
 umount $CLONE/var
+umount $CLONE/home
 umount $CLONE
 
 echo "Hello world, I'm $ID cloned from $MASTER_HOST ! :)"
