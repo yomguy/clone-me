@@ -1,10 +1,9 @@
 label: dos
-label-id: 0xe671bb0c
+label-id: 0x281616a6
 device: /dev/nvme0n1
 unit: sectors
 
-/dev/nvme0n1p1 : start=        2048, size=    29491200, type=83, bootable
-/dev/nvme0n1p2 : start=    29495294, size=   458901506, type=5
-/dev/nvme0n1p5 : start=    29495296, size=    19529728, type=83
-/dev/nvme0n1p6 : start=    49027072, size=    15622144, type=82
-/dev/nvme0n1p7 : start=    64651264, size=   423745536, type=83
+/dev/nvme0n1p1 : start=        2048, size=    41943040, type=83, bootable
+/dev/nvme0n1p2 : start=    41945088, size=    31457280, type=83
+/dev/nvme0n1p3 : start=    73402368, size=    16777216, type=82
+/dev/nvme0n1p4 : start=    90179584, size=   398217584, type=83
