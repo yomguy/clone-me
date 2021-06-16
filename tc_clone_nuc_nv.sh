@@ -18,10 +18,10 @@ do
     case "${flag}" in
         m) MASTER=${OPTARG};;
         i) ID=${OPTARG};;
-        f) FORMAT=tdrue;;
+        f) FORMAT=true;;
         r) ROOT=${OPTARG};;
         s) SYNC=true;;
-        p) PARTITIONS=${OPTARG};;
+        p) PARTITION=${OPTARG};;
     esac
 done
 
