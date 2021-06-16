@@ -18,7 +18,7 @@ do
     case "${flag}" in
         m) MASTER=${OPTARG};;
         i) ID=${OPTARG};;
-        f) FORMAT=tdrue;;
+        f) FORMAT=true;;
         r) ROOT=${OPTARG};;
         s) SYNC=true;;
         p) PARTITIONS=${OPTARG};;
@@ -34,8 +34,8 @@ fi
 #umount /dev/$VAR_PART $CLONE/var
 #umount /dev/$ROOT_PART $CLONE
 
-if [ $PARTITION ]; then
-    sfdisk /dev/DISK < $PARTITIONS
+if [ $PARTITIONS ]; then
+    sfdisk /dev/$DISK < $PARTITIONS
 fi
 
 if [ $FORMAT ]; then
