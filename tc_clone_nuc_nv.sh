@@ -21,7 +21,7 @@ do
         f) FORMAT=true;;
         r) ROOT=${OPTARG};;
         s) SYNC=true;;
-        p) PARTITION=${OPTARG};;
+        p) PARTITIONS=${OPTARG};;
     esac
 done
 
@@ -34,7 +34,7 @@ fi
 #umount /dev/$VAR_PART $CLONE/var
 #umount /dev/$ROOT_PART $CLONE
 
-if [ $PARTITION ]; then
+if [ $PARTITIONS ]; then
     sfdisk /dev/DISK < $PARTITIONS
 fi
 
