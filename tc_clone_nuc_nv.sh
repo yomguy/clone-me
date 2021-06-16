@@ -7,19 +7,21 @@ OPTIND=1         # Reset in case getopts has been used previously in the shell.
 ROOT="/"
 FS_TYPE="ext4"
 
+DISK=nvme0n1
 ROOT_PART="nvme0n1p1"
 VAR_PART="nvme0n1p2"
 SWAP_PART="nvme0n1p3"
 HOME_PART="nvme0n1p4"
 
-while getopts m:i:p:r:s flag
+while getopts m:i:p:r:s:d:f flag
 do
     case "${flag}" in
-        m) MASTER_HOST=${OPTARG};;
+        m) MASTER=${OPTARG};;
         i) ID=${OPTARG};;
-        p) PARTITION=true;;
+        f) FORMAT=tdrue;;
         r) ROOT=${OPTARG};;
         s) SYNC=true;;
+        p) PARTITIONS=${OPTARG};;
     esac
 done
 
@@ -28,27 +30,46 @@ if [ ! -d $CLONE ]; then
  mkdir $CLONE
 fi
 
+#umount /dev/$HOME_PART $$CLONE/home
+#umount /dev/$VAR_PART $CLONE/var
+#umount /dev/$ROOT_PART $CLONE
+
 if [ $PARTITION ]; then
-    mkfs.$FS_TYPE /dev/$ROOT_PART
-    mkfs.$FS_TYPE /dev/$VAR_PART
-    mkfs.$FS_TYPE /dev/$HOME_PART
+    sfdisk /dev/DISK < $PARTITIONS
+fi
+
+if [ $FORMAT ]; then
+    mkfs.$FS_TYPE -q /dev/$ROOT_PART
+    mkfs.$FS_TYPE -q /dev/$VAR_PART
+    mkfs.$FS_TYPE -q  /dev/$HOME_PART
     mkswap /dev/$SWAP_PART
 fi
 
+
 mount /dev/$ROOT_PART $CLONE
+
+DEST=$CLONE/var
+if [ ! -d $DEST ]; then
+  mkdir $DEST
+fi
 mount /dev/$VAR_PART $CLONE/var
-mount /dev/$HOME_PART $$CLONE/home
+
+DEST=$CLONE/home
+if [ ! -d $DEST ]; then
+   mkdir $DEST
+fi
+mount /dev/$HOME_PART $CLONE/home
 
 if [ $SYNC ]; then
     # CLONING
     echo "rsyncing root..."
-    rsync -a --delete --exclude "/var/*" --exclude "/home/*" --one-file-system $MASTER_HOST:$MASTER_PATH/ $CLONE/
+    rsync -a --delete --exclude "/var/*" --exclude "/home/*" --one-file-system $MASTER:$ROOT/ $CLONE/
 
     echo "rsyncing var..."
-    rsync -a --one-file-system --delete $MASTER_HOST:$MASTER_PATH/var/ $CLONE/var/
+    rsync -a --one-file-system --delete $MASTER:$ROOT/var/ $CLONE/var/
 
     echo "rsyncing home..."
-    rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "test/*" --exclude "edit/*" $MASTER_HOST:$MASTER_PATH/home/ $CLONE/home/
+    rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "test/*" --exclude "edit/*" $MASTER:$ROOT/home/ $CLONE/home/
 fi
 
 # FSTAB
@@ -66,7 +87,7 @@ uuid=`get_uuid $ROOT_PART`
 echo "UUID=$uuid    /    $FS_TYPE    defaults,errors=remount-ro    0       1" > $CLONE/etc/fstab
 if [ ! $VAR_PART == $ROOT_PART ]; then
  uuid=`get_uuid $VAR_PART`
- echo "UUID=$uuid    /var    $FS_TYPE    defaults,errors=remount-ro    0       2" >> $CLONE/etc/fstab
+echo "UUID=$uuid    /var    $FS_TYPE    defaults,errors=remount-ro    0       2" >> $CLONE/etc/fstab
 fi
 uuid=`get_uuid $HOME_PART`
 echo "UUID=$uuid    /home    $FS_TYPE    defaults,errors=remount-ro    0       2" >> $CLONE/etc/fstab
@@ -79,7 +100,7 @@ echo $ID > $CLONE/etc/hostname
 
 # CHROOT
 mount --bind /sys $CLONE/sys
-mount --bind /prc $CLONE/proc
+mount --bind /proc $CLONE/proc
 mount --bind /dev $CLONE/dev
 mount --bind /dev/pts $CLONE/dev/pts
 
@@ -89,12 +110,12 @@ chroot $CLONE update-initramfs -u
 chroot $CLONE update-grub
 
 # UMOUNT
-umount $CLONE/sys
-umount $CLONE/proc
 umount $CLONE/dev/pts
 umount $CLONE/dev
+umount $CLONE/proc
+umount $CLONE/sys
 umount $CLONE/var
 umount $CLONE/home
 umount $CLONE
 
-echo "Hello world, I'm $ID cloned from $MASTER_HOST ! :)"
+echo "Hello world, I'm $ID cloned from $MASTER ! :)"
