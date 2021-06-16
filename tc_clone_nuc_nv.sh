@@ -35,7 +35,7 @@ fi
 #umount /dev/$ROOT_PART $CLONE
 
 if [ $PARTITIONS ]; then
-    sfdisk /dev/DISK < $PARTITIONS
+    sfdisk /dev/$DISK < $PARTITIONS
 fi
 
 if [ $FORMAT ]; then
