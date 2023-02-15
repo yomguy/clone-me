@@ -9,9 +9,9 @@ FS_TYPE="ext4"
 
 DISK=nvme0n1
 ROOT_PART="nvme0n1p1"
-VAR_PART="nvme0n1p2"
-SWAP_PART="nvme0n1p3"
-HOME_PART="nvme0n1p4"
+VAR_PART="nvme0n1p5"
+SWAP_PART="nvme0n1p6"
+HOME_PART="nvme0n1p7"
 
 while getopts m:i:p:r:s:d:f flag
 do
