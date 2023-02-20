@@ -53,7 +53,7 @@ if [ $SYNC ]; then
     rsync -a --delete --one-file-system $MASTER:$ROOT/ $CLONE/
 
     echo "rsyncing efi..."
-    rsync -a --one-file-system --delete $MASTER:$ROOT/boot/efi $CLONE/boot/efi/
+    rsync -a --one-file-system --delete $MASTER:$ROOT/boot/efi/ $CLONE/boot/efi/
 fi
 
 # FSTAB
