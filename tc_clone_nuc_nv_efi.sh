@@ -45,7 +45,7 @@ fi
 
 
 mount /dev/$ROOT_PART $CLONE
-mont  /dev/$EFI_PART $CLONE/boot/efi
+mount  /dev/$EFI_PART $CLONE/boot/efi
 
 if [ $SYNC ]; then
     # CLONING
