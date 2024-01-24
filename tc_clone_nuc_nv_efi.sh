@@ -95,7 +95,7 @@ done
 uuid=`get_uuid $ROOT_PART`
 echo "UUID=$uuid    /    $FS_TYPE    defaults,errors=remount-ro    0       1" > $CLONE/etc/fstab
 uuid=`get_uuid $EFI_PART`
-echo "UUID=$uuid    /bot/efi    vfat    umask=0077    0       1" >> $CLONE/etc/fstab
+echo "UUID=$uuid    /boot/efi    vfat    umask=0077    0       1" >> $CLONE/etc/fstab
 uuid=`get_uuid $SWAP_PART`
 echo "UUID=$uuid    none    swap    sw    0       0" >> $CLONE/etc/fstab
 if [ ! $VAR_PART == $ROOT_PART ]; then
