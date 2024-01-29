@@ -128,12 +128,12 @@ mount --bind /dev $CLONE/dev
 mount --bind /dev/pts $CLONE/dev/pts
 
 # GRUB EFI
-chroot apt install grub-efi
-chroot grub-install
+chroot $CLONE apt install grub-efi
+chroot $CLONE grub-install
 chroot $CLONE update-initramfs -u
 chroot $CLONE update-grub
-chroot file /boot/efi/EFI/debian/grubx64.efi
-chroot efibootmgr --verbose | grep debian
+chroot $CLONE file /boot/efi/EFI/debian/grubx64.efi
+chroot $CLONE efibootmgr --verbose | grep debian
 
 # UMOUNT
 umount $CLONE/dev/pts
