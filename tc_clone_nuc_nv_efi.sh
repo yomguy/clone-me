@@ -26,15 +26,26 @@ do
     esac
 done
 
+# UMOUNT
+DIR=$CLONE/home
+if [ d $DIR ]; then
+    umount $DIR
+fi
+DIR=$CLONE/var
+if [ d $DIR ]; then
+    umount $DIR
+fi
+DIR=$CLONE/boot/efi
+if [ d $DIR ]; then
+    umount $DIR
+fi
+
+
 CLONE=/mnt/$ID
 if [ ! -d $CLONE ]; then
  mkdir $CLONE
 fi
 
-umount /dev/$HOME_PART $$CLONE/home
-umount /dev/$VAR_PART $CLONE/var
-umount /dev/$ROOT_PART $CLONE
-umount /dev/$EFI_PART
 
 if [ $PARTITIONS ]; then
     sfdisk /dev/$DISK < $PARTITIONS
