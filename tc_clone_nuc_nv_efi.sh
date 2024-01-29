@@ -26,6 +26,8 @@ do
     esac
 done
 
+CLONE=/mnt/$ID
+
 # UMOUNT
 DIR=$CLONE/home
 if [ -d $DIR ]; then
@@ -41,7 +43,6 @@ if [ -d $DIR ]; then
 fi
 
 
-CLONE=/mnt/$ID
 if [ ! -d $CLONE ]; then
  mkdir $CLONE
 fi
