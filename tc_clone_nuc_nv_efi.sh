@@ -28,15 +28,15 @@ done
 
 # UMOUNT
 DIR=$CLONE/home
-if [ d $DIR ]; then
+if [ -d $DIR ]; then
     umount $DIR
 fi
 DIR=$CLONE/var
-if [ d $DIR ]; then
+if [ -d $DIR ]; then
     umount $DIR
 fi
 DIR=$CLONE/boot/efi
-if [ d $DIR ]; then
+if [ -d $DIR ]; then
     umount $DIR
 fi
 
