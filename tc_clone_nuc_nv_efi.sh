@@ -12,7 +12,7 @@ EFI_PART="nvme0n1p1"
 ROOT_PART="nvme0n1p2"
 VAR_PART="nvme0n1p3"
 SWAP_PART="nvme0n1p4"
-SWAP_PART="nvme0n1p5"
+HOME_PART="nvme0n1p5"
 
 while getopts m:i:p:r:s:d:f flag
 do
