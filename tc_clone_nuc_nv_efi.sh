@@ -130,7 +130,7 @@ mount --bind /dev/pts $CLONE/dev/pts
 # GRUB EFI
 mount -t efivarfs none $CLONE/sys/firmware/efi/efivars
 chroot $CLONE apt install grub-efi
-chroot $CLONE grub-install $DISK
+chroot $CLONE grub-install /dev/$DISK
 chroot $CLONE update-initramfs -u
 chroot $CLONE update-grub
 chroot $CLONE file /boot/efi/EFI/debian/grubx64.efi

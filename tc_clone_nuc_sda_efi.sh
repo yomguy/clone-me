@@ -7,12 +7,12 @@ OPTIND=1         # Reset in case getopts has been used previously in the shell.
 ROOT="/"
 FS_TYPE="ext4"
 
-DISK=/dev/sda
-EFI_PART="/dev/sda1"
-ROOT_PART="/dev/sda2"
-VAR_PART="/dev/sda3"
-SWAP_PART="/dev/sda4"
-HOME_PART="/dev/sda5"
+DISK=sda
+EFI_PART="sda1"
+ROOT_PART="sda2"
+VAR_PART="sda3"
+SWAP_PART="sda4"
+HOME_PART="sda5"
 
 while getopts m:i:p:r:s:d:f flag
 do
@@ -130,7 +130,7 @@ mount --bind /dev/pts $CLONE/dev/pts
 # GRUB EFI
 mount -t efivarfs none $CLONE/sys/firmware/efi/efivars
 chroot $CLONE apt install grub-efi
-chroot $CLONE grub-install $DISK
+chroot $CLONE grub-install /dev/$DISK
 chroot $CLONE update-initramfs -u
 chroot $CLONE update-grub
 chroot $CLONE file /boot/efi/EFI/debian/grubx64.efi
