@@ -108,16 +108,16 @@ uuid=`get_uuid $ROOT_PART`
 echo "UUID=$uuid    /    $FS_TYPE    defaults,errors=remount-ro    0       1" > $CLONE/etc/fstab
 uuid=`get_uuid $EFI_PART`
 echo "UUID=$uuid    /boot/efi    vfat    umask=0077    0       1" >> $CLONE/etc/fstab
-uuid=`get_uuid $SWAP_PART`
-echo "UUID=$uuid    none    swap    sw    0       0" >> $CLONE/etc/fstab
 if [ ! $VAR_PART == $ROOT_PART ]; then
  uuid=`get_uuid $VAR_PART`
 echo "UUID=$uuid    /var    $FS_TYPE    defaults,errors=remount-ro    0       2" >> $CLONE/etc/fstab
 fi
 uuid=`get_uuid $HOME_PART`
 echo "UUID=$uuid    /home    $FS_TYPE    defaults,errors=remount-ro    0       2" >> $CLONE/etc/fstab
+swap_uuid=`get_uuid $SWAP_PART`
+echo "UUID=$swap_uuid    none    swap    sw    0       0" >> $CLONE/etc/fstab
 
-echo "RESUME=UUID=$uuid" >> $CLONE/etc/initramfs-tools/conf.d/resume
+echo "RESUME=UUID=$swap_uuid" > $CLONE/etc/initramfs-tools/conf.d/resume
 
 echo $ID > $CLONE/etc/hostname
 
@@ -128,14 +128,16 @@ mount --bind /dev $CLONE/dev
 mount --bind /dev/pts $CLONE/dev/pts
 
 # GRUB EFI
+mount -t efivarfs none $CLONE/sys/firmware/efi/efivars
 chroot $CLONE apt install grub-efi
-chroot $CLONE grub-install
+chroot $CLONE grub-install $DISK
 chroot $CLONE update-initramfs -u
 chroot $CLONE update-grub
 chroot $CLONE file /boot/efi/EFI/debian/grubx64.efi
 chroot $CLONE efibootmgr --verbose | grep debian
 
 # UMOUNT
+umount $CLONE/sys/firmware/efi/efivars
 umount $CLONE/dev/pts
 umount $CLONE/dev
 umount $CLONE/proc
