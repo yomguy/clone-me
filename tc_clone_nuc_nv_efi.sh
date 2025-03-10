@@ -126,9 +126,9 @@ mount --bind /sys $CLONE/sys
 mount --bind /proc $CLONE/proc
 mount --bind /dev $CLONE/dev
 mount --bind /dev/pts $CLONE/dev/pts
+mount -t efivarfs none $CLONE/sys/firmware/efi/efivars
 
 # GRUB EFI
-mount -t efivarfs none $CLONE/sys/firmware/efi/efivars
 chroot $CLONE apt install grub-efi
 chroot $CLONE grub-install /dev/$DISK
 chroot $CLONE update-initramfs -u
