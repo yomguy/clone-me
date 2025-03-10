@@ -90,7 +90,7 @@ if [ $SYNC ]; then
     rsync -a --one-file-system --delete $MASTER:$ROOT/var/ $CLONE/var/
 
     echo "rsyncing home..."
-    rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "test/*" --exclude "edit/*" $MASTER:$ROOT/home/ $CLONE/home/
+    rsync -a --one-file-system --exclude "archives/*" --exclude "trash/*" --exclude "monitor/*" --exclude "test/*" --exclude "edit/*" $MASTER:$ROOT/home/ $CLONE/home/
 fi
 
 # FSTAB
