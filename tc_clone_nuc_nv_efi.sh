@@ -84,9 +84,9 @@ if [ $SYNC ]; then
     echo "rsyncing root..."
 
     if [ $BACKUP ]; then
-        rsync -a --delete --one-file-system $MASTER:$ROOT/ $CLONE/
-    else
         rsync -a --delete --one-file-system $MASTER:$ROOT/root/ $CLONE/
+    else
+        rsync -a --delete --one-file-system $MASTER:$ROOT/ $CLONE/
     fi
 
     echo "rsyncing efi..."
