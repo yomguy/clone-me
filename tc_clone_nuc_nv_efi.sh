@@ -14,7 +14,7 @@ VAR_PART="nvme0n1p3"
 SWAP_PART="nvme0n1p4"
 HOME_PART="nvme0n1p5"
 
-while getopts m:i:p:r:s:d:f flag
+while getopts m:i:p:r:s:d:f:b flag
 do
     case "${flag}" in
         m) MASTER=${OPTARG};;
@@ -23,6 +23,7 @@ do
         r) ROOT=${OPTARG};;
         s) SYNC=true;;
         p) PARTITIONS=${OPTARG};;
+        b) backup=false;;
     esac
 done
 
@@ -81,7 +82,12 @@ mount /dev/$HOME_PART $CLONE/home
 if [ $SYNC ]; then
     # CLONING
     echo "rsyncing root..."
-    rsync -a --delete --one-file-system $MASTER:$ROOT/ $CLONE/
+
+    if [ $BACKUP ]; then
+        rsync -a --delete --one-file-system $MASTER:$ROOT/ $CLONE/
+    else
+        rsync -a --delete --one-file-system $MASTER:$ROOT/root/ $CLONE/
+    fi
 
     echo "rsyncing efi..."
     rsync -a --one-file-system --delete $MASTER:$ROOT/boot/efi/ $CLONE/boot/efi/
