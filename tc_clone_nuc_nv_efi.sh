@@ -23,7 +23,7 @@ do
         r) ROOT=${OPTARG};;
         s) SYNC=true;;
         p) PARTITIONS=${OPTARG};;
-        b) backup=false;;
+        b) BACKUP=false;;
     esac
 done
 
