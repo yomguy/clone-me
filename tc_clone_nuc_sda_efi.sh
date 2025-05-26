@@ -120,6 +120,7 @@ echo "UUID=$swap_uuid    none    swap    sw    0       0" >> $CLONE/etc/fstab
 echo "RESUME=UUID=$swap_uuid" > $CLONE/etc/initramfs-tools/conf.d/resume
 
 echo $ID > $CLONE/etc/hostname
+echo $ID | cut -d "-" -f 1 > $CLONE/etc/hostname
 
 # CHROOT
 mount --bind /sys $CLONE/sys
