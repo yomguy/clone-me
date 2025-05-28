@@ -56,7 +56,7 @@ fi
 if [ $FORMAT ]; then
     mkfs.vfat /dev/$EFI_PART
     mkfs.$FS_TYPE -q /dev/$ROOT_PART
-    mkswap /dev/$SWAP_PART
+    mkswap -q /dev/$SWAP_PART
     mkfs.$FS_TYPE -q /dev/$VAR_PART
     mkfs.$FS_TYPE -q  /dev/$HOME_PART
 fi
